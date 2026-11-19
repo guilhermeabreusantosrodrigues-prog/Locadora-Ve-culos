@@ -1,0 +1,369 @@
+BEGIN TRANSACTION;
+CREATE TABLE IF NOT EXISTS "Frota_ERRADA" (
+	"id_registro"	INTEGER,
+	"placa"	TEXT,
+	"marca"	TEXT,
+	"modelo"	TEXT,
+	"nome_cliente"	TEXT,
+	"cpf_cliente"	TEXT,
+	"data_locacao"	TEXT,
+	"data_devolucao"	TEXT,
+	"descricao_manutencao"	TEXT,
+	"data_manutencao"	TEXT,
+	"descricao_multa"	TEXT,
+	"valor_multa"	REAL,
+	PRIMARY KEY("id_registro")
+);
+CREATE TABLE IF NOT EXISTS "clientes" (
+	"id_cliente"	INTEGER,
+	"nome"	TEXT NOT NULL,
+	"cpf"	TEXT NOT NULL UNIQUE,
+	"telefone"	TEXT,
+	PRIMARY KEY("id_cliente" AUTOINCREMENT)
+);
+CREATE TABLE IF NOT EXISTS "locacoes" (
+	"id_locacao"	INTEGER,
+	"id_veiculo"	INTEGER NOT NULL,
+	"id_cliente"	INTEGER NOT NULL,
+	"data_retirada"	TEXT NOT NULL,
+	"data_prevista_devolucao"	TEXT NOT NULL,
+	"data_devolucao"	TEXT,
+	"status"	TEXT NOT NULL DEFAULT 'ATIVA' CHECK("status" IN ('ATIVA', 'ENCERRADA', 'CANCELADA')),
+	"valor_total"	REAL CHECK("valor_total" IS NULL OR "valor_total" >= 0),
+	PRIMARY KEY("id_locacao" AUTOINCREMENT),
+	FOREIGN KEY("id_cliente") REFERENCES "clientes"("id_cliente"),
+	FOREIGN KEY("id_veiculo") REFERENCES "veiculos"("id_veiculo"),
+	CHECK("data_prevista_devolucao" >= "data_retirada"),
+	CHECK("data_devolucao" IS NULL OR "data_devolucao" >= "data_retirada")
+);
+CREATE TABLE IF NOT EXISTS "manutencoes" (
+	"id_manutencao"	INTEGER,
+	"id_veiculo"	INTEGER NOT NULL,
+	"descricao"	TEXT NOT NULL,
+	"data_inicio"	TEXT NOT NULL,
+	"data_fim"	TEXT,
+	"status"	TEXT NOT NULL DEFAULT 'ABERTA' CHECK("status" IN ('ABERTA', 'EM_ANDAMENTO', 'CONCLUIDA')),
+	"custo"	REAL CHECK("custo" IS NULL OR "custo" >= 0),
+	PRIMARY KEY("id_manutencao" AUTOINCREMENT),
+	FOREIGN KEY("id_veiculo") REFERENCES "veiculos"("id_veiculo"),
+	CHECK("data_fim" IS NULL OR "data_fim" >= "data_inicio")
+);
+CREATE TABLE IF NOT EXISTS "multas" (
+	"id_multa"	INTEGER,
+	"id_veiculo"	INTEGER NOT NULL,
+	"descricao"	TEXT NOT NULL,
+	"data_infracao"	TEXT NOT NULL,
+	"valor"	REAL NOT NULL CHECK("valor" >= 0),
+	"status_pagamento"	TEXT NOT NULL DEFAULT 'PENDENTE' CHECK("status_pagamento" IN ('PENDENTE', 'PAGA', 'EM_RECURSO')),
+	PRIMARY KEY("id_multa" AUTOINCREMENT),
+	FOREIGN KEY("id_veiculo") REFERENCES "veiculos"("id_veiculo")
+);
+CREATE TABLE IF NOT EXISTS "veiculos" (
+	"id_veiculo"	INTEGER,
+	"placa"	TEXT NOT NULL UNIQUE,
+	"marca"	TEXT NOT NULL,
+	"modelo"	TEXT NOT NULL,
+	"ano"	INTEGER NOT NULL CHECK("ano" >= 1900),
+	"status"	TEXT NOT NULL DEFAULT 'DISPONIVEL' CHECK("status" IN ('DISPONIVEL', 'ALUGADO', 'MANUTENCAO', 'INATIVO')),
+	PRIMARY KEY("id_veiculo" AUTOINCREMENT)
+);
+INSERT INTO "Frota_ERRADA" VALUES (1,'ABC1234','Chevrolet','Onix','Joao Silva','11111111111','2026-10-01','2026-10-05',NULL,NULL,NULL,NULL);
+INSERT INTO "Frota_ERRADA" VALUES (2,'ABC1234','Chevrolet','Onix','Joao Silva','11111111111',NULL,NULL,'Troca de oleo','2026-10-10',NULL,NULL);
+INSERT INTO "Frota_ERRADA" VALUES (3,'ABC1234','Chevrolet','Onix','Joao Silva','11111111111',NULL,NULL,NULL,NULL,'Excesso de velocidade',195.23);
+INSERT INTO "Frota_ERRADA" VALUES (4,'DEF5678','Hyundai','HB20','Maria Souza','22222222222','2026-11-15','2026-11-22',NULL,NULL,NULL,NULL);
+INSERT INTO "Frota_ERRADA" VALUES (5,'GHI9012','Toyota','Corolla','Pedro Santos','33333333333',NULL,NULL,'Revisao preventiva','2026-11-17',NULL,NULL);
+INSERT INTO "Frota_ERRADA" VALUES (6,'JKL3456','Fiat','Argo','Carla Oliveira','44444444444','2026-10-20','2026-10-23',NULL,NULL,'Estacionamento irregular',130.16);
+INSERT INTO "Frota_ERRADA" VALUES (7,'MNO7890','Volkswagen','Polo','Ana Costa','55555555555','2026-09-02','2026-09-06',NULL,NULL,NULL,NULL);
+INSERT INTO "Frota_ERRADA" VALUES (8,'PQR2345','Renault','Kwid','Lucas Lima','66666666666',NULL,NULL,'Troca de pneus','2026-10-28',NULL,NULL);
+INSERT INTO "clientes" VALUES (1,'Joao Silva','10000000001','11990000001');
+INSERT INTO "clientes" VALUES (2,'Maria Souza','10000000002','11990000002');
+INSERT INTO "clientes" VALUES (3,'Pedro Santos','10000000003','11990000003');
+INSERT INTO "clientes" VALUES (4,'Carla Oliveira','10000000004','11990000004');
+INSERT INTO "clientes" VALUES (5,'Ana Costa','10000000005','11990000005');
+INSERT INTO "clientes" VALUES (6,'Lucas Lima','10000000006','11990000006');
+INSERT INTO "clientes" VALUES (7,'Fernanda Alves','10000000007','11990000007');
+INSERT INTO "clientes" VALUES (8,'Rafael Martins','10000000008','11990000008');
+INSERT INTO "clientes" VALUES (9,'Juliana Rocha','10000000009','11990000009');
+INSERT INTO "clientes" VALUES (10,'Marcos Pereira','10000000010','11990000010');
+INSERT INTO "clientes" VALUES (11,'Beatriz Ferreira','10000000011','11990000011');
+INSERT INTO "clientes" VALUES (12,'Gabriel Ribeiro','10000000012','11990000012');
+INSERT INTO "clientes" VALUES (13,'Camila Almeida','10000000013','11990000013');
+INSERT INTO "clientes" VALUES (14,'Bruno Carvalho','10000000014','11990000014');
+INSERT INTO "clientes" VALUES (15,'Larissa Gomes','10000000015','11990000015');
+INSERT INTO "clientes" VALUES (16,'Thiago Ribeiro','10000000016','11990000016');
+INSERT INTO "clientes" VALUES (17,'Amanda Barros','10000000017','11990000017');
+INSERT INTO "clientes" VALUES (18,'Felipe Nunes','10000000018','11990000018');
+INSERT INTO "clientes" VALUES (19,'Leticia Moreira','10000000019','11990000019');
+INSERT INTO "clientes" VALUES (20,'Eduardo Castro','10000000020','11990000020');
+INSERT INTO "clientes" VALUES (21,'Isabela Cardoso','10000000021','11990000021');
+INSERT INTO "clientes" VALUES (22,'Rodrigo Teixeira','10000000022','11990000022');
+INSERT INTO "clientes" VALUES (23,'Patricia Araujo','10000000023','11990000023');
+INSERT INTO "clientes" VALUES (24,'Diego Fernandes','10000000024','11990000024');
+INSERT INTO "clientes" VALUES (25,'Vanessa Mendes','10000000025','11990000025');
+INSERT INTO "clientes" VALUES (26,'André Lima','10000000026','11990000026');
+INSERT INTO "clientes" VALUES (27,'Sofia Barbosa','10000000027','11990000027');
+INSERT INTO "clientes" VALUES (28,'Gustavo Correia','10000000028','11990000028');
+INSERT INTO "clientes" VALUES (29,'Mariana Dias','10000000029','11990000029');
+INSERT INTO "clientes" VALUES (30,'Leonardo Freitas','10000000030','11990000030');
+INSERT INTO "clientes" VALUES (31,'Claudia Monteiro','10000000031','11990000031');
+INSERT INTO "clientes" VALUES (32,'Renato Pinto','10000000032','11990000032');
+INSERT INTO "clientes" VALUES (33,'Bianca Moraes','10000000033','11990000033');
+INSERT INTO "clientes" VALUES (34,'Vitor Rezende','10000000034','11990000034');
+INSERT INTO "clientes" VALUES (35,'Priscila Cunha','10000000035','11990000035');
+INSERT INTO "clientes" VALUES (36,'Daniel Lopes','10000000036','11990000036');
+INSERT INTO "clientes" VALUES (37,'Aline Batista','10000000037','11990000037');
+INSERT INTO "clientes" VALUES (38,'Caio Machado','10000000038','11990000038');
+INSERT INTO "clientes" VALUES (39,'Elisa Campos','10000000039','11990000039');
+INSERT INTO "clientes" VALUES (40,'Samuel Reis','10000000040','11990000040');
+INSERT INTO "clientes" VALUES (41,'Michele Duarte','10000000041','11990000041');
+INSERT INTO "clientes" VALUES (42,'Otavio Melo','10000000042','11990000042');
+INSERT INTO "clientes" VALUES (43,'Raquel Pires','10000000043','11990000043');
+INSERT INTO "clientes" VALUES (44,'Igor Farias','10000000044','11990000044');
+INSERT INTO "clientes" VALUES (45,'Debora Tavares','10000000045','11990000045');
+INSERT INTO "clientes" VALUES (46,'Murilo Xavier','10000000046','11990000046');
+INSERT INTO "clientes" VALUES (47,'Nathalia Peixoto','10000000047','11990000047');
+INSERT INTO "clientes" VALUES (48,'Cesar Vieira','10000000048','11990000048');
+INSERT INTO "clientes" VALUES (49,'Luana Andrade','10000000049','11990000049');
+INSERT INTO "clientes" VALUES (50,'Roberto Neves','10000000050','11990000050');
+INSERT INTO "locacoes" VALUES (1,1,1,'2026-09-03','2026-09-08',NULL,'ATIVA',NULL);
+INSERT INTO "locacoes" VALUES (2,2,2,'2026-09-05','2026-09-10',NULL,'ATIVA',NULL);
+INSERT INTO "locacoes" VALUES (3,3,3,'2026-09-07','2026-09-12',NULL,'ATIVA',NULL);
+INSERT INTO "locacoes" VALUES (4,4,4,'2026-09-09','2026-09-14',NULL,'ATIVA',NULL);
+INSERT INTO "locacoes" VALUES (5,5,5,'2026-09-11','2026-09-16',NULL,'ATIVA',NULL);
+INSERT INTO "locacoes" VALUES (6,6,6,'2026-09-13','2026-09-18',NULL,'ATIVA',NULL);
+INSERT INTO "locacoes" VALUES (7,7,7,'2026-09-15','2026-09-20',NULL,'ATIVA',NULL);
+INSERT INTO "locacoes" VALUES (8,8,8,'2026-09-17','2026-09-22',NULL,'ATIVA',NULL);
+INSERT INTO "locacoes" VALUES (9,9,9,'2026-09-19','2026-09-24',NULL,'ATIVA',NULL);
+INSERT INTO "locacoes" VALUES (10,10,10,'2026-09-21','2026-09-26',NULL,'ATIVA',NULL);
+INSERT INTO "locacoes" VALUES (11,11,11,'2026-09-23','2026-09-28','2026-09-30','ENCERRADA',370.85);
+INSERT INTO "locacoes" VALUES (12,12,12,'2026-09-25','2026-09-30','2026-09-30','ENCERRADA',388.2);
+INSERT INTO "locacoes" VALUES (13,13,13,'2026-09-27','2026-10-02','2026-10-03','ENCERRADA',405.55);
+INSERT INTO "locacoes" VALUES (14,14,14,'2026-09-29','2026-10-04','2026-10-06','ENCERRADA',422.9);
+INSERT INTO "locacoes" VALUES (15,15,15,'2026-10-01','2026-10-06','2026-10-06','ENCERRADA',440.25);
+INSERT INTO "locacoes" VALUES (16,16,16,'2026-10-03','2026-10-08','2026-10-09','ENCERRADA',457.6);
+INSERT INTO "locacoes" VALUES (17,17,17,'2026-10-05','2026-10-10','2026-10-12','ENCERRADA',474.95);
+INSERT INTO "locacoes" VALUES (18,18,18,'2026-10-07','2026-10-12','2026-10-12','ENCERRADA',492.3);
+INSERT INTO "locacoes" VALUES (19,19,19,'2026-10-09','2026-10-14','2026-10-15','ENCERRADA',509.65);
+INSERT INTO "locacoes" VALUES (20,20,20,'2026-10-11','2026-10-16','2026-10-18','ENCERRADA',527.0);
+INSERT INTO "locacoes" VALUES (21,21,21,'2026-10-13','2026-10-18','2026-10-18','ENCERRADA',544.35);
+INSERT INTO "locacoes" VALUES (22,22,22,'2026-10-15','2026-10-20','2026-10-21','ENCERRADA',561.7);
+INSERT INTO "locacoes" VALUES (23,23,23,'2026-10-17','2026-10-22','2026-10-24','ENCERRADA',579.05);
+INSERT INTO "locacoes" VALUES (24,24,24,'2026-10-19','2026-10-24','2026-10-24','ENCERRADA',596.4);
+INSERT INTO "locacoes" VALUES (25,25,25,'2026-10-21','2026-10-26','2026-10-27','ENCERRADA',613.75);
+INSERT INTO "locacoes" VALUES (26,26,26,'2026-10-23','2026-10-28','2026-10-30','ENCERRADA',631.1);
+INSERT INTO "locacoes" VALUES (27,27,27,'2026-10-25','2026-10-30','2026-10-30','ENCERRADA',648.45);
+INSERT INTO "locacoes" VALUES (28,28,28,'2026-10-27','2026-11-01','2026-11-02','ENCERRADA',665.8);
+INSERT INTO "locacoes" VALUES (29,29,29,'2026-10-29','2026-11-03','2026-11-05','ENCERRADA',683.15);
+INSERT INTO "locacoes" VALUES (30,30,30,'2026-10-31','2026-11-05','2026-11-05','ENCERRADA',700.5);
+INSERT INTO "locacoes" VALUES (31,31,31,'2026-11-02','2026-11-07','2026-11-08','ENCERRADA',717.85);
+INSERT INTO "locacoes" VALUES (32,32,32,'2026-11-04','2026-11-09','2026-11-11','ENCERRADA',735.2);
+INSERT INTO "locacoes" VALUES (33,33,33,'2026-11-06','2026-11-11','2026-11-11','ENCERRADA',752.55);
+INSERT INTO "locacoes" VALUES (34,34,34,'2026-11-08','2026-11-13','2026-11-14','ENCERRADA',769.9);
+INSERT INTO "locacoes" VALUES (35,35,35,'2026-11-10','2026-11-15','2026-11-17','ENCERRADA',787.25);
+INSERT INTO "locacoes" VALUES (36,36,36,'2026-11-12','2026-11-17','2026-11-17','ENCERRADA',804.6);
+INSERT INTO "locacoes" VALUES (37,37,37,'2026-11-14','2026-11-19','2026-11-20','ENCERRADA',821.95);
+INSERT INTO "locacoes" VALUES (38,38,38,'2026-11-16','2026-11-21','2026-11-23','ENCERRADA',839.3);
+INSERT INTO "locacoes" VALUES (39,39,39,'2026-11-18','2026-11-23','2026-11-23','ENCERRADA',856.65);
+INSERT INTO "locacoes" VALUES (40,40,40,'2026-11-20','2026-11-25','2026-11-26','ENCERRADA',874.0);
+INSERT INTO "locacoes" VALUES (41,41,41,'2026-11-22','2026-11-27','2026-11-29','ENCERRADA',891.35);
+INSERT INTO "locacoes" VALUES (42,42,42,'2026-11-24','2026-11-29','2026-11-29','ENCERRADA',908.7);
+INSERT INTO "locacoes" VALUES (43,43,43,'2026-11-26','2026-12-01','2026-12-02','ENCERRADA',926.05);
+INSERT INTO "locacoes" VALUES (44,44,44,'2026-11-28','2026-12-03','2026-12-05','ENCERRADA',943.4);
+INSERT INTO "locacoes" VALUES (45,45,45,'2026-11-30','2026-12-05','2026-12-05','ENCERRADA',960.75);
+INSERT INTO "locacoes" VALUES (46,46,46,'2026-12-02','2026-12-07','2026-12-08','ENCERRADA',978.1);
+INSERT INTO "locacoes" VALUES (47,47,47,'2026-12-04','2026-12-09','2026-12-11','ENCERRADA',995.45);
+INSERT INTO "locacoes" VALUES (48,48,48,'2026-12-06','2026-12-11','2026-12-11','ENCERRADA',1012.8);
+INSERT INTO "locacoes" VALUES (49,49,49,'2026-12-08','2026-12-13','2026-12-14','ENCERRADA',1030.15);
+INSERT INTO "locacoes" VALUES (50,50,50,'2026-12-10','2026-12-15','2026-12-17','ENCERRADA',1047.5);
+INSERT INTO "manutencoes" VALUES (1,11,'Revisao preventiva','2026-09-06',NULL,'EM_ANDAMENTO',143.75);
+INSERT INTO "manutencoes" VALUES (2,12,'Troca de oleo','2026-09-08',NULL,'EM_ANDAMENTO',167.5);
+INSERT INTO "manutencoes" VALUES (3,13,'Alinhamento e balanceamento','2026-09-10',NULL,'EM_ANDAMENTO',191.25);
+INSERT INTO "manutencoes" VALUES (4,14,'Revisao do sistema de freios','2026-09-12',NULL,'EM_ANDAMENTO',215.0);
+INSERT INTO "manutencoes" VALUES (5,15,'Substituicao de bateria','2026-09-14',NULL,'EM_ANDAMENTO',238.75);
+INSERT INTO "manutencoes" VALUES (6,1,'Troca de pneus','2026-09-16','2026-09-17','CONCLUIDA',262.5);
+INSERT INTO "manutencoes" VALUES (7,2,'Inspecao geral','2026-09-18','2026-09-19','CONCLUIDA',286.25);
+INSERT INTO "manutencoes" VALUES (8,3,'Reparo na suspensao','2026-09-20','2026-09-21','CONCLUIDA',310.0);
+INSERT INTO "manutencoes" VALUES (9,4,'Revisao do motor','2026-09-22','2026-09-23','CONCLUIDA',333.75);
+INSERT INTO "manutencoes" VALUES (10,5,'Troca de filtros','2026-09-24','2026-09-25','CONCLUIDA',357.5);
+INSERT INTO "manutencoes" VALUES (11,6,'Revisao preventiva','2026-09-26','2026-09-27','CONCLUIDA',381.25);
+INSERT INTO "manutencoes" VALUES (12,7,'Troca de oleo','2026-09-28','2026-09-29','CONCLUIDA',405.0);
+INSERT INTO "manutencoes" VALUES (13,8,'Alinhamento e balanceamento','2026-09-30','2026-10-01','CONCLUIDA',428.75);
+INSERT INTO "manutencoes" VALUES (14,9,'Revisao do sistema de freios','2026-10-02','2026-10-03','CONCLUIDA',452.5);
+INSERT INTO "manutencoes" VALUES (15,10,'Substituicao de bateria','2026-10-04','2026-10-05','CONCLUIDA',476.25);
+INSERT INTO "manutencoes" VALUES (16,11,'Troca de pneus','2026-10-06','2026-10-07','CONCLUIDA',500.0);
+INSERT INTO "manutencoes" VALUES (17,12,'Inspecao geral','2026-10-08','2026-10-09','CONCLUIDA',523.75);
+INSERT INTO "manutencoes" VALUES (18,13,'Reparo na suspensao','2026-10-10','2026-10-11','CONCLUIDA',547.5);
+INSERT INTO "manutencoes" VALUES (19,14,'Revisao do motor','2026-10-12','2026-10-13','CONCLUIDA',571.25);
+INSERT INTO "manutencoes" VALUES (20,15,'Troca de filtros','2026-10-14','2026-10-15','CONCLUIDA',595.0);
+INSERT INTO "manutencoes" VALUES (21,16,'Revisao preventiva','2026-10-16','2026-10-17','CONCLUIDA',618.75);
+INSERT INTO "manutencoes" VALUES (22,17,'Troca de oleo','2026-10-18','2026-10-19','CONCLUIDA',642.5);
+INSERT INTO "manutencoes" VALUES (23,18,'Alinhamento e balanceamento','2026-10-20','2026-10-21','CONCLUIDA',666.25);
+INSERT INTO "manutencoes" VALUES (24,19,'Revisao do sistema de freios','2026-10-22','2026-10-23','CONCLUIDA',690.0);
+INSERT INTO "manutencoes" VALUES (25,20,'Substituicao de bateria','2026-10-24','2026-10-25','CONCLUIDA',713.75);
+INSERT INTO "manutencoes" VALUES (26,21,'Troca de pneus','2026-10-26','2026-10-27','CONCLUIDA',737.5);
+INSERT INTO "manutencoes" VALUES (27,22,'Inspecao geral','2026-10-28','2026-10-29','CONCLUIDA',761.25);
+INSERT INTO "manutencoes" VALUES (28,23,'Reparo na suspensao','2026-10-30','2026-10-31','CONCLUIDA',785.0);
+INSERT INTO "manutencoes" VALUES (29,24,'Revisao do motor','2026-11-01','2026-11-02','CONCLUIDA',808.75);
+INSERT INTO "manutencoes" VALUES (30,25,'Troca de filtros','2026-11-03','2026-11-04','CONCLUIDA',832.5);
+INSERT INTO "manutencoes" VALUES (31,26,'Revisao preventiva','2026-11-05','2026-11-06','CONCLUIDA',856.25);
+INSERT INTO "manutencoes" VALUES (32,27,'Troca de oleo','2026-11-07','2026-11-08','CONCLUIDA',880.0);
+INSERT INTO "manutencoes" VALUES (33,28,'Alinhamento e balanceamento','2026-11-09','2026-11-10','CONCLUIDA',903.75);
+INSERT INTO "manutencoes" VALUES (34,29,'Revisao do sistema de freios','2026-11-11','2026-11-12','CONCLUIDA',927.5);
+INSERT INTO "manutencoes" VALUES (35,30,'Substituicao de bateria','2026-11-13','2026-11-14','CONCLUIDA',951.25);
+INSERT INTO "manutencoes" VALUES (36,31,'Troca de pneus','2026-11-15','2026-11-16','CONCLUIDA',975.0);
+INSERT INTO "manutencoes" VALUES (37,32,'Inspecao geral','2026-11-17','2026-11-18','CONCLUIDA',998.75);
+INSERT INTO "manutencoes" VALUES (38,33,'Reparo na suspensao','2026-11-19','2026-11-20','CONCLUIDA',1022.5);
+INSERT INTO "manutencoes" VALUES (39,34,'Revisao do motor','2026-11-21','2026-11-22','CONCLUIDA',1046.25);
+INSERT INTO "manutencoes" VALUES (40,35,'Troca de filtros','2026-11-23','2026-11-24','CONCLUIDA',1070.0);
+INSERT INTO "manutencoes" VALUES (41,36,'Revisao preventiva','2026-11-25','2026-11-26','CONCLUIDA',1093.75);
+INSERT INTO "manutencoes" VALUES (42,37,'Troca de oleo','2026-11-27','2026-11-28','CONCLUIDA',1117.5);
+INSERT INTO "manutencoes" VALUES (43,38,'Alinhamento e balanceamento','2026-11-29','2026-11-30','CONCLUIDA',1141.25);
+INSERT INTO "manutencoes" VALUES (44,39,'Revisao do sistema de freios','2026-12-01','2026-12-02','CONCLUIDA',1165.0);
+INSERT INTO "manutencoes" VALUES (45,40,'Substituicao de bateria','2026-12-03','2026-12-04','CONCLUIDA',1188.75);
+INSERT INTO "manutencoes" VALUES (46,41,'Troca de pneus','2026-12-05','2026-12-06','CONCLUIDA',1212.5);
+INSERT INTO "manutencoes" VALUES (47,42,'Inspecao geral','2026-12-07','2026-12-08','CONCLUIDA',1236.25);
+INSERT INTO "manutencoes" VALUES (48,43,'Reparo na suspensao','2026-12-09','2026-12-10','CONCLUIDA',1260.0);
+INSERT INTO "manutencoes" VALUES (49,44,'Revisao do motor','2026-12-11','2026-12-12','CONCLUIDA',1283.75);
+INSERT INTO "manutencoes" VALUES (50,45,'Troca de filtros','2026-12-13','2026-12-14','CONCLUIDA',1307.5);
+INSERT INTO "multas" VALUES (1,1,'Excesso de velocidade','2026-09-04',130.16,'PENDENTE');
+INSERT INTO "multas" VALUES (2,2,'Estacionamento irregular','2026-09-06',195.23,'PAGA');
+INSERT INTO "multas" VALUES (3,3,'Avanco de sinal','2026-09-08',293.47,'EM_RECURSO');
+INSERT INTO "multas" VALUES (4,4,'Estacionamento proibido','2026-09-10',880.41,'PENDENTE');
+INSERT INTO "multas" VALUES (5,5,'Uso de faixa exclusiva','2026-09-12',104.12,'PAGA');
+INSERT INTO "multas" VALUES (6,6,'Excesso de velocidade','2026-09-14',130.16,'EM_RECURSO');
+INSERT INTO "multas" VALUES (7,7,'Estacionamento irregular','2026-09-16',195.23,'PENDENTE');
+INSERT INTO "multas" VALUES (8,8,'Avanco de sinal','2026-09-18',293.47,'PAGA');
+INSERT INTO "multas" VALUES (9,9,'Estacionamento proibido','2026-09-20',880.41,'EM_RECURSO');
+INSERT INTO "multas" VALUES (10,10,'Uso de faixa exclusiva','2026-09-22',104.12,'PENDENTE');
+INSERT INTO "multas" VALUES (11,11,'Excesso de velocidade','2026-09-24',130.16,'PAGA');
+INSERT INTO "multas" VALUES (12,12,'Estacionamento irregular','2026-09-26',195.23,'EM_RECURSO');
+INSERT INTO "multas" VALUES (13,13,'Avanco de sinal','2026-09-28',293.47,'PENDENTE');
+INSERT INTO "multas" VALUES (14,14,'Estacionamento proibido','2026-09-30',880.41,'PAGA');
+INSERT INTO "multas" VALUES (15,15,'Uso de faixa exclusiva','2026-10-02',104.12,'EM_RECURSO');
+INSERT INTO "multas" VALUES (16,16,'Excesso de velocidade','2026-10-04',130.16,'PENDENTE');
+INSERT INTO "multas" VALUES (17,17,'Estacionamento irregular','2026-10-06',195.23,'PAGA');
+INSERT INTO "multas" VALUES (18,18,'Avanco de sinal','2026-10-08',293.47,'EM_RECURSO');
+INSERT INTO "multas" VALUES (19,19,'Estacionamento proibido','2026-10-10',880.41,'PENDENTE');
+INSERT INTO "multas" VALUES (20,20,'Uso de faixa exclusiva','2026-10-12',104.12,'PAGA');
+INSERT INTO "multas" VALUES (21,21,'Excesso de velocidade','2026-10-14',130.16,'EM_RECURSO');
+INSERT INTO "multas" VALUES (22,22,'Estacionamento irregular','2026-10-16',195.23,'PENDENTE');
+INSERT INTO "multas" VALUES (23,23,'Avanco de sinal','2026-10-18',293.47,'PAGA');
+INSERT INTO "multas" VALUES (24,24,'Estacionamento proibido','2026-10-20',880.41,'EM_RECURSO');
+INSERT INTO "multas" VALUES (25,25,'Uso de faixa exclusiva','2026-10-22',104.12,'PENDENTE');
+INSERT INTO "multas" VALUES (26,26,'Excesso de velocidade','2026-10-24',130.16,'PAGA');
+INSERT INTO "multas" VALUES (27,27,'Estacionamento irregular','2026-10-26',195.23,'EM_RECURSO');
+INSERT INTO "multas" VALUES (28,28,'Avanco de sinal','2026-10-28',293.47,'PENDENTE');
+INSERT INTO "multas" VALUES (29,29,'Estacionamento proibido','2026-10-30',880.41,'PAGA');
+INSERT INTO "multas" VALUES (30,30,'Uso de faixa exclusiva','2026-11-01',104.12,'EM_RECURSO');
+INSERT INTO "multas" VALUES (31,31,'Excesso de velocidade','2026-11-03',130.16,'PENDENTE');
+INSERT INTO "multas" VALUES (32,32,'Estacionamento irregular','2026-11-05',195.23,'PAGA');
+INSERT INTO "multas" VALUES (33,33,'Avanco de sinal','2026-11-07',293.47,'EM_RECURSO');
+INSERT INTO "multas" VALUES (34,34,'Estacionamento proibido','2026-11-09',880.41,'PENDENTE');
+INSERT INTO "multas" VALUES (35,35,'Uso de faixa exclusiva','2026-11-11',104.12,'PAGA');
+INSERT INTO "multas" VALUES (36,36,'Excesso de velocidade','2026-11-13',130.16,'EM_RECURSO');
+INSERT INTO "multas" VALUES (37,37,'Estacionamento irregular','2026-11-15',195.23,'PENDENTE');
+INSERT INTO "multas" VALUES (38,38,'Avanco de sinal','2026-11-17',293.47,'PAGA');
+INSERT INTO "multas" VALUES (39,39,'Estacionamento proibido','2026-11-19',880.41,'EM_RECURSO');
+INSERT INTO "multas" VALUES (40,40,'Uso de faixa exclusiva','2026-11-21',104.12,'PENDENTE');
+INSERT INTO "multas" VALUES (41,41,'Excesso de velocidade','2026-11-23',130.16,'PAGA');
+INSERT INTO "multas" VALUES (42,42,'Estacionamento irregular','2026-11-25',195.23,'EM_RECURSO');
+INSERT INTO "multas" VALUES (43,43,'Avanco de sinal','2026-11-27',293.47,'PENDENTE');
+INSERT INTO "multas" VALUES (44,44,'Estacionamento proibido','2026-11-29',880.41,'PAGA');
+INSERT INTO "multas" VALUES (45,45,'Uso de faixa exclusiva','2026-12-01',104.12,'EM_RECURSO');
+INSERT INTO "multas" VALUES (46,46,'Excesso de velocidade','2026-12-03',130.16,'PENDENTE');
+INSERT INTO "multas" VALUES (47,47,'Estacionamento irregular','2026-12-05',195.23,'PAGA');
+INSERT INTO "multas" VALUES (48,48,'Avanco de sinal','2026-12-07',293.47,'EM_RECURSO');
+INSERT INTO "multas" VALUES (49,49,'Estacionamento proibido','2026-12-09',880.41,'PENDENTE');
+INSERT INTO "multas" VALUES (50,50,'Uso de faixa exclusiva','2026-12-11',104.12,'PAGA');
+INSERT INTO "veiculos" VALUES (1,'AEJ0C00','Chevrolet','Onix',2020,'ALUGADO');
+INSERT INTO "veiculos" VALUES (2,'DMW1H37','Hyundai','HB20',2021,'ALUGADO');
+INSERT INTO "veiculos" VALUES (3,'GVH2N64','Toyota','Corolla',2022,'ALUGADO');
+INSERT INTO "veiculos" VALUES (4,'KCV3U91','Fiat','Argo',2023,'ALUGADO');
+INSERT INTO "veiculos" VALUES (5,'NKG4Z28','Volkswagen','Polo',2024,'ALUGADO');
+INSERT INTO "veiculos" VALUES (6,'STU5E55','Renault','Kwid',2025,'ALUGADO');
+INSERT INTO "veiculos" VALUES (7,'VAF6K82','Honda','Civic',2019,'ALUGADO');
+INSERT INTO "veiculos" VALUES (8,'YHT7R19','Jeep','Renegade',2020,'ALUGADO');
+INSERT INTO "veiculos" VALUES (9,'BRE8W46','Nissan','Kicks',2021,'ALUGADO');
+INSERT INTO "veiculos" VALUES (10,'EYS9B73','Fiat','Mobi',2022,'ALUGADO');
+INSERT INTO "veiculos" VALUES (11,'HFD0G00','Chevrolet','Tracker',2023,'MANUTENCAO');
+INSERT INTO "veiculos" VALUES (12,'LNR1M37','Volkswagen','T-Cross',2024,'MANUTENCAO');
+INSERT INTO "veiculos" VALUES (13,'PWC2T64','Toyota','Yaris',2025,'MANUTENCAO');
+INSERT INTO "veiculos" VALUES (14,'TDP3Y91','Hyundai','Creta',2019,'MANUTENCAO');
+INSERT INTO "veiculos" VALUES (15,'WLB4D28','Renault','Duster',2020,'MANUTENCAO');
+INSERT INTO "veiculos" VALUES (16,'ZUN5J55','Honda','City',2021,'DISPONIVEL');
+INSERT INTO "veiculos" VALUES (17,'CBA6P82','Jeep','Compass',2022,'DISPONIVEL');
+INSERT INTO "veiculos" VALUES (18,'FJM7V19','Nissan','Versa',2023,'DISPONIVEL');
+INSERT INTO "veiculos" VALUES (19,'JSZ8A46','Chevrolet','Spin',2024,'DISPONIVEL');
+INSERT INTO "veiculos" VALUES (20,'MZL9F73','Fiat','Cronos',2025,'INATIVO');
+INSERT INTO "veiculos" VALUES (21,'RGY0L00','Volkswagen','Virtus',2019,'DISPONIVEL');
+INSERT INTO "veiculos" VALUES (22,'UPK1S37','Toyota','Hilux',2020,'DISPONIVEL');
+INSERT INTO "veiculos" VALUES (23,'XXX2X64','Hyundai','Tucson',2021,'DISPONIVEL');
+INSERT INTO "veiculos" VALUES (24,'AEJ3C91','Renault','Captur',2022,'DISPONIVEL');
+INSERT INTO "veiculos" VALUES (25,'DMW4H28','Honda','HR-V',2023,'DISPONIVEL');
+INSERT INTO "veiculos" VALUES (26,'GVH5N55','Jeep','Commander',2024,'DISPONIVEL');
+INSERT INTO "veiculos" VALUES (27,'KCV6U82','Nissan','Sentra',2025,'DISPONIVEL');
+INSERT INTO "veiculos" VALUES (28,'NKG7Z19','Chevrolet','S10',2019,'DISPONIVEL');
+INSERT INTO "veiculos" VALUES (29,'STU8E46','Fiat','Toro',2020,'DISPONIVEL');
+INSERT INTO "veiculos" VALUES (30,'VAF9K73','Volkswagen','Taos',2021,'DISPONIVEL');
+INSERT INTO "veiculos" VALUES (31,'YHT0R00','Toyota','Etios',2022,'DISPONIVEL');
+INSERT INTO "veiculos" VALUES (32,'BRE1W37','Hyundai','i30',2023,'DISPONIVEL');
+INSERT INTO "veiculos" VALUES (33,'EYS2B64','Renault','Logan',2024,'DISPONIVEL');
+INSERT INTO "veiculos" VALUES (34,'HFD3G91','Honda','Fit',2025,'DISPONIVEL');
+INSERT INTO "veiculos" VALUES (35,'LNR4M28','Jeep','Renegade',2019,'DISPONIVEL');
+INSERT INTO "veiculos" VALUES (36,'PWC5T55','Nissan','March',2020,'DISPONIVEL');
+INSERT INTO "veiculos" VALUES (37,'TDP6Y82','Chevrolet','Prisma',2021,'DISPONIVEL');
+INSERT INTO "veiculos" VALUES (38,'WLB7D19','Fiat','Uno',2022,'DISPONIVEL');
+INSERT INTO "veiculos" VALUES (39,'ZUN8J46','Volkswagen','Gol',2023,'DISPONIVEL');
+INSERT INTO "veiculos" VALUES (40,'CBA9P73','Toyota','RAV4',2024,'INATIVO');
+INSERT INTO "veiculos" VALUES (41,'FJM0V00','Hyundai','HB20S',2025,'DISPONIVEL');
+INSERT INTO "veiculos" VALUES (42,'JSZ1A37','Renault','Sandero',2019,'DISPONIVEL');
+INSERT INTO "veiculos" VALUES (43,'MZL2F64','Honda','WR-V',2020,'DISPONIVEL');
+INSERT INTO "veiculos" VALUES (44,'RGY3L91','Jeep','Compass',2021,'DISPONIVEL');
+INSERT INTO "veiculos" VALUES (45,'UPK4S28','Nissan','Kicks',2022,'DISPONIVEL');
+INSERT INTO "veiculos" VALUES (46,'XXX5X55','Chevrolet','Cruze',2023,'DISPONIVEL');
+INSERT INTO "veiculos" VALUES (47,'AEJ6C82','Fiat','Pulse',2024,'DISPONIVEL');
+INSERT INTO "veiculos" VALUES (48,'DMW7H19','Volkswagen','Nivus',2025,'DISPONIVEL');
+INSERT INTO "veiculos" VALUES (49,'GVH8N46','Toyota','Corolla Cross',2019,'DISPONIVEL');
+INSERT INTO "veiculos" VALUES (50,'KCV9U73','Hyundai','Venue',2020,'DISPONIVEL');
+CREATE VIEW vw_veiculos_disponiveis AS
+SELECT
+    v.id_veiculo,
+    v.placa,
+    v.marca,
+    v.modelo,
+    v.ano
+FROM veiculos AS v
+WHERE v.status = 'DISPONIVEL'
+  AND NOT EXISTS (
+      SELECT 1
+      FROM locacoes AS l
+      WHERE l.id_veiculo = v.id_veiculo
+        AND l.status = 'ATIVA'
+  )
+  AND NOT EXISTS (
+      SELECT 1
+      FROM manutencoes AS m
+      WHERE m.id_veiculo = v.id_veiculo
+        AND m.status IN ('ABERTA', 'EM_ANDAMENTO')
+  );
+CREATE INDEX IF NOT EXISTS "idx_locacoes_cliente" ON "locacoes" (
+	"id_cliente"
+);
+CREATE INDEX IF NOT EXISTS "idx_locacoes_veiculo_status" ON "locacoes" (
+	"id_veiculo",
+	"status"
+);
+CREATE INDEX IF NOT EXISTS "idx_manutencoes_veiculo_status" ON "manutencoes" (
+	"id_veiculo",
+	"status"
+);
+CREATE INDEX IF NOT EXISTS "idx_multas_data" ON "multas" (
+	"data_infracao"
+);
+CREATE INDEX IF NOT EXISTS "idx_multas_veiculo" ON "multas" (
+	"id_veiculo"
+);
+CREATE INDEX IF NOT EXISTS "idx_veiculos_status" ON "veiculos" (
+	"status"
+);
+COMMIT;
